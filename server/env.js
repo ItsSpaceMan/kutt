@@ -84,7 +84,7 @@ for (const key in spec) {
 const env = cleanEnv(process.env, spec);
 
 console.log("env", {
-  ...env,
+  ...process.env,
   DB_PASSWORD: "<redacted>",
   JWT_SECRET: "<redacted>",
   REDIS_PASSWORD: "<redacted>",
