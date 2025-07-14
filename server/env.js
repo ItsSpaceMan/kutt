@@ -8,7 +8,7 @@ const supportedDBClients = [
   "sqlite3",
   "better-sqlite3",
   "mysql",
-  "mysql2"
+  "mysql2",
 ];
 
 // make sure custom alphabet is not empty
@@ -31,7 +31,9 @@ const spec = {
   SITE_NAME: str({ example: "Kutt", default: "Kutt" }),
   DEFAULT_DOMAIN: str({ example: "kutt.it", default: "localhost:3000" }),
   LINK_LENGTH: num({ default: 6 }),
-  LINK_CUSTOM_ALPHABET: str({ default: "abcdefghkmnpqrstuvwxyzABCDEFGHKLMNPQRSTUVWXYZ23456789" }),
+  LINK_CUSTOM_ALPHABET: str({
+    default: "abcdefghkmnpqrstuvwxyzABCDEFGHKLMNPQRSTUVWXYZ23456789",
+  }),
   TRUST_PROXY: bool({ default: true }),
   DB_CLIENT: str({ choices: supportedDBClients, default: "better-sqlite3" }),
   DB_FILENAME: str({ default: "db/data" }),
@@ -80,5 +82,13 @@ for (const key in spec) {
 }
 
 const env = cleanEnv(process.env, spec);
+
+console.log("env", {
+  ...env,
+  DB_PASSWORD: "<redacted>",
+  JWT_SECRET: "<redacted>",
+  REDIS_PASSWORD: "<redacted>",
+  MAIL_PASSWORD: "<redacted>",
+});
 
 module.exports = env;
