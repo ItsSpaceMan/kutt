@@ -1,5 +1,6 @@
 const { differenceInDays, differenceInHours, differenceInMonths, differenceInMilliseconds, addDays, subHours, subDays, subMonths, subYears, format } = require("date-fns");
 const { customAlphabet } = require("nanoid");
+const crypto = require("node:crypto");
 const JWT = require("jsonwebtoken");
 const path = require("node:path");
 const fs = require("node:fs");
@@ -58,6 +59,12 @@ function deleteCurrentToken(res) {
   res.clearCookie("token", { httpOnly: true, secure: env.isProd });
 }
 
+function generateRandomPassword() {
+  // 24-64 characters.
+  const length = Math.floor(Math.random() * 41 ) + 24;
+  return [...crypto.randomBytes(length)].map(byte => String.fromCharCode((byte % 93) + 33)).join("");
+}
+
 async function generateId(query, domain_id) {
   const address = nanoid();
   const link = await query.link.find({ address, domain_id });
@@ -72,17 +79,18 @@ function addProtocol(url) {
   return hasProtocol ? url : "http://" + url;
 }
 
+function getSiteURL() {
+  const protocol = !env.isDev ? "https://" : "http://";
+  return `${protocol}${env.DEFAULT_DOMAIN}${env.BASE_PATH}`;
+}
+
 function getShortURL(address, domain) {
   const protocol = (env.CUSTOM_DOMAIN_USE_HTTPS || !domain) && !env.isDev ? "https://" : "http://";
   const linkDomain = domain || env.DEFAULT_DOMAIN;
   let path = '';
 
-  if (env.BASE_PATH) {
-    if (linkDomain === env.DEFAULT_DOMAIN) {
-      path = env.BASE_PATH;
-    } else if (env.SHORT_URLS_INCLUDE_PATH) {
-      path = env.BASE_PATH;
-    }
+  if (env.BASE_PATH && env.SHORT_URLS_INCLUDE_PATH) {
+    path = env.BASE_PATH;
   }
 
   const link = `${linkDomain}${path}/${address}`;
@@ -415,9 +423,11 @@ module.exports = {
   dateToUTC,
   deleteCurrentToken,
   generateId,
+  generateRandomPassword,
   getCustomCSSFileNames,
   getDifferenceFunction,
   getInitStats,
+  getSiteURL,
   getShortURL,
   getStatsPeriods,
   isAdmin,
